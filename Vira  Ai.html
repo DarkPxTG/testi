@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Vira Asistent</title>
+
+  <link href="https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css" rel="stylesheet">
+
+  <style>
+    html, body {
+      overflow: hidden;
+    }
+    body {
+      margin: 0;
+      height: 100vh;
+      background: url('https://s6.uupload.ir/files/b7bea4f8-6201-4f5e-b019-6ab7eb7ab38f_bxj6.png') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Vazir', sans-serif;
+      position: relative;
+    }
+    .robot-face {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6vh;
+      margin-top: 10vh;
+      transform: translateY(-50px);
+    }
+    .eyes {
+      display: flex;
+      gap: 12vw;
+    }
+    .eye {
+      width: 12vw;
+      height: 12vw;
+      background: white;
+      box-shadow:
+        0 0 2px #aaa,
+        0 0 4px #ccc,
+        inset -3px -3px 0 #eee,
+        inset 3px 3px 0 #ccc;
+      border-radius: 50%;
+    }
+    .mouth {
+      width: 40vw;
+      height: 5vh;
+      border: 5px solid white;
+      transition: all 0.3s ease-in-out;
+      animation: smileLoop 3s infinite;
+    }
+    @keyframes smileLoop {
+      0%, 90%, 100% { border-radius: 0; height: 5vh; }
+      40%, 60% { border-radius: 50px; height: 3vh; }
+    }
+    .circle-container {
+      width: 25vw;
+      height: 25vw;
+      position: fixed;
+      bottom: 8vh;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: rotate 8s linear infinite;
+      z-index: 10;
+    }
+    .circle-container img {
+      width: 100%;
+      height: 100%;
+    }
+    @keyframes rotate {
+      0% { transform: translateX(-50%) rotate(0deg); }
+      100% { transform: translateX(-50%) rotate(360deg); }
+    }
+    .icon-btn {
+      position: fixed;
+      top: 5vh;
+      width: 10vw;
+      height: 10vw;
+      background-color: #2e5e4e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 6vw;
+      color: white;
+      cursor: pointer;
+      z-index: 999;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    }
+    .left-icon { left: 4vw; }
+    .right-icon { right: 4vw; }
+    .title-box {
+      position: fixed;
+      top: 1vh;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 998;
+      user-select: none;
+      pointer-events: none;
+      color: white;
+    }
+    .title-box .main-title {
+      font-size: 6vw;
+      font-weight: bold;
+    }
+    .title-box .sub-title {
+      font-size: 3.5vw;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .welcome-text {
+      position: fixed;
+      top: 10vh;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 5vw;
+      font-weight: bold;
+      color: #fff;
+      background: rgba(0,0,0,0.5);
+      padding: 0.5em 1em;
+      border-radius: 10px;
+      z-index: 1000;
+      user-select: none;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    .welcome-text.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="title-box">
+    <div class="main-title">Vira Asistent</div>
+    <div class="sub-title">Version Beta</div>
+  </div>
+
+  <div class="icon-btn left-icon">+</div>
+  <div class="icon-btn right-icon">!</div>
+
+  <div class="robot-face">
+    <div class="eyes">
+      <div class="eye"></div>
+      <div class="eye"></div>
+    </div>
+    <div class="mouth"></div>
+  </div>
+
+  <div class="circle-container">
+    <img src="https://s6.uupload.ir/files/275-2758479_loading-circle-png_0ob.png" alt="rotating circle">
+  </div>
+
+  <div id="welcomeText" class="welcome-text">خوش آمدید!</div>
+
+  <script>
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const welcomeText = document.getElementById('welcomeText');
+
+    function typeText(text) {
+      welcomeText.classList.add('show');
+      welcomeText.textContent = '';
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < text.length) {
+          welcomeText.textContent += text[i++];
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            welcomeText.classList.remove('show');
+          }, 4000);
+        }
+      }, 50);
+    }
+
+    async function askAI(question) {
+      try {
+        const apiKey = "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"; // 🔑 کلید API خودت رو اینجا بذار
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini", // می‌تونی gpt-4o هم بزنی
+            messages: [{ role: "user", content: question }]
+          })
+        });
+
+        const data = await response.json();
+        return data.choices[0].message.content;
+      } catch (error) {
+        console.error("❌ خطا در API:", error);
+        return "متاسفانه الان به سرور وصل نشدم.";
+      }
+    }
+
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'fa-IR';
+      recognition.continuous = true;
+      recognition.interimResults = false;
+
+      recognition.onresult = async function(event) {
+        const transcript = event.results[event.results.length - 1][0].transcript.trim();
+        console.log("🎙️ شما گفتید:", transcript);
+
+        const aiAnswer = await askAI(transcript);
+
+        // گفتن جواب با صدا
+        const msg = new SpeechSynthesisUtterance(aiAnswer);
+        msg.lang = 'fa-IR';
+        speechSynthesis.speak(msg);
+
+        // نمایش متن روی صفحه
+        typeText(aiAnswer);
+      };
+
+      recognition.onerror = function(event) {
+        console.error('❌ خطا:', event.error);
+        recognition.start();
+      };
+
+      recognition.onend = function() {
+        recognition.start();
+      };
+
+      recognition.start();
+    } else {
+      alert("مرورگر شما از قابلیت تشخیص صدا پشتیبانی نمی‌کند.");
+    }
+  </script>
+</body>
+</html>
